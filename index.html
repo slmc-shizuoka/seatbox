@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SeatBox | 講座席の申請窓口</title>
+<meta name="theme-color" content="#1B2430">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --ink:#1B2430;
+    --ink-deep:#0F1620;
+    --paper:#EDE7DA;
+    --paper-dim:#DCD4C1;
+    --brass:#B8935A;
+    --brass-bright:#D2AD79;
+    --stamp:#A63D40;
+    --slate:#5C6B73;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(184,147,90,0.10), transparent 42%),
+      radial-gradient(circle at 88% 82%, rgba(184,147,90,0.08), transparent 45%);
+    color:var(--paper);
+    font-family:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",-apple-system,BlinkMacSystemFont,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  @font-face{
+    font-family:"DispSerif";
+    src:local("Georgia");
+  }
+  .wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding:56px 24px 80px;
+  }
+
+  /* ---------- Header : 窓口の看板 ---------- */
+  header.board{
+    position:relative;
+    padding-bottom:36px;
+    margin-bottom:48px;
+    border-bottom:1px solid rgba(237,231,218,0.18);
+  }
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    letter-spacing:.22em;
+    color:var(--brass-bright);
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;
+    background:var(--brass-bright);
+    display:inline-block;
+  }
+  h1.brand{
+    font-family:Georgia,"Hiragino Mincho ProN",serif;
+    font-weight:700;
+    font-size:clamp(40px,8vw,64px);
+    letter-spacing:.01em;
+    margin:0 0 14px;
+    line-height:1.05;
+    color:var(--paper);
+  }
+  h1.brand em{
+    font-style:normal;
+    color:var(--brass-bright);
+  }
+  .lede{
+    max-width:56ch;
+    color:rgba(237,231,218,0.72);
+    font-size:15.5px;
+    line-height:1.9;
+    margin:0;
+  }
+  .counter-status{
+    position:absolute;
+    top:4px;right:0;
+    text-align:right;
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    color:rgba(237,231,218,0.5);
+    letter-spacing:.06em;
+  }
+  .counter-status .lamp{
+    display:inline-block;
+    width:7px;height:7px;
+    border-radius:50%;
+    background:#7FB37A;
+    box-shadow:0 0 6px #7FB37A;
+    margin-right:6px;
+  }
+
+  /* ---------- Ticket list ---------- */
+  .tickets{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  .ticket{
+    position:relative;
+    display:grid;
+    grid-template-columns:88px 24px 1fr auto;
+    align-items:stretch;
+    background:var(--paper);
+    color:var(--ink-deep);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:0 18px 40px -20px rgba(0,0,0,0.55);
+    text-decoration:none;
+    transition:transform .28s cubic-bezier(.2,.7,.3,1), box-shadow .28s ease;
+  }
+  .ticket:hover{
+    transform:translateY(-3px);
+    box-shadow:0 24px 48px -18px rgba(0,0,0,0.6);
+  }
+  .ticket:focus-visible{
+    outline:3px solid var(--brass-bright);
+    outline-offset:3px;
+  }
+  .stub{
+    background:var(--ink);
+    color:var(--brass-bright);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:18px 8px;
+    font-family:"Courier New",monospace;
+  }
+  .stub .no-label{
+    font-size:9px;
+    letter-spacing:.14em;
+    color:rgba(210,173,121,0.65);
+  }
+  .stub .no-num{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:.02em;
+  }
+  /* 半券の切り込み(パンチ穴のライン) */
+  .perf{
+    position:relative;
+    width:0;
+    border-left:2px dashed rgba(15,22,32,0.28);
+  }
+  .perf::before,.perf::after{
+    content:"";
+    position:absolute;
+    left:-9px;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--ink);
+  }
+  .perf::before{ top:-9px; }
+  .perf::after{ bottom:-9px; }
+
+  .ticket-body{
+    padding:22px 24px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:6px;
+  }
+  .ticket-body .cat{
+    font-size:11px;
+    letter-spacing:.12em;
+    color:var(--slate);
+    text-transform:uppercase;
+  }
+  .ticket-body h2{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    line-height:1.4;
+    font-family:Georgia,"Hiragino Mincho ProN",serif;
+  }
+  .ticket-body .desc{
+    margin:2px 0 0;
+    font-size:13px;
+    color:var(--slate);
+    line-height:1.6;
+  }
+  .ticket-cta{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 26px 0 8px;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.04em;
+    color:var(--ink-deep);
+    white-space:nowrap;
+  }
+  .ticket-cta .arrow{
+    display:inline-block;
+    transition:transform .25s ease;
+  }
+  .ticket:hover .ticket-cta .arrow{ transform:translateX(5px); }
+
+  /* ---------- Footer ledger ---------- */
+  .ledger{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid rgba(237,231,218,0.18);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    font-size:11.5px;
+    color:rgba(237,231,218,0.45);
+    letter-spacing:.04em;
+  }
+
+  @media (max-width:560px){
+    .ticket{grid-template-columns:64px 18px 1fr;}
+    .ticket-cta{
+      grid-column:1 / -1;
+      padding:0 22px 20px;
+      justify-content:flex-end;
+    }
+    .stub .no-num{font-size:18px;}
+    .counter-status{position:static; text-align:left; margin-bottom:14px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .ticket, .ticket-cta .arrow{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="board">
+    <div class="counter-status"><span class="lamp"></span>OPEN — 受付中</div>
+    <div class="eyebrow">Seat Reservation Counter</div>
+    <h1 class="brand">Seat<em>Box</em></h1>
+    <p class="lede">デジタル生活安全講座、席の申請はこちらの窓口から。受けたい講座のチケットを選んで、申請フォームへ進んでください。</p>
+  </header>
+
+  <main class="tickets">
+
+    <a class="ticket" href="https://docs.google.com/forms/d/e/1FAIpQLScSBajhSe59FuSRuPpS_ayG8SZJgFQGBxum9xJcK3UUhk_sqA/viewform" target="_blank" rel="noopener">
+      <span class="stub">
+        <span class="no-label">SEAT NO.</span>
+        <span class="no-num">01</span>
+      </span>
+      <span class="perf"></span>
+      <span class="ticket-body">
+        <span class="cat">Windows</span>
+        <h2>WIN11デジタル生活安全講座</h2>
+        <p class="desc">Windows 11利用者向けの安全講座。基本設定です。</p>
+      </span>
+      <span class="ticket-cta">申請する<span class="arrow">→</span></span>
+    </a>
+
+    <a class="ticket" href="https://docs.google.com/forms/d/e/1FAIpQLScGmFmZ6XV7tLkUNb2rF-A3t5A0q_uX4Y9D-bXtkyWZicTxng/viewform" target="_blank" rel="noopener">
+      <span class="stub">
+        <span class="no-label">SEAT NO.</span>
+        <span class="no-num">02</span>
+      </span>
+      <span class="perf"></span>
+      <span class="ticket-body">
+        <span class="cat">Mac</span>
+        <h2>MACデジタル生活安全講座</h2>
+        <p class="desc">Mac利用者向けの安全講座。</p>
+      </span>
+      <span class="ticket-cta">申請する<span class="arrow">→</span></span>
+    </a>
+
+    <a class="ticket" href="https://docs.google.com/forms/d/e/1FAIpQLScdEDqL546mtmQVO6pnf_mm337emdKJdLADI0I66wRXDBpJ-A/viewform" target="_blank" rel="noopener">
+      <span class="stub">
+        <span class="no-label">SEAT NO.</span>
+        <span class="no-num">03</span>
+      </span>
+      <span class="perf"></span>
+      <span class="ticket-body">
+        <span class="cat">iPad</span>
+        <h2>デジタル生活安全講座(iPad付き)</h2>
+        <p class="desc">iPad端末が付属する安全講座。</p>
+      </span>
+      <span class="ticket-cta">申請する<span class="arrow">→</span></span>
+    </a>
+
+  </main>
+
+  <footer class="ledger">
+    <span>SeatBox — Seat Reservation Counter</span>
+    <span id="build-stamp"></span>
+  </footer>
+
+</div>
+
+<script>
+  // 更新日を表示(チケットの発行日スタンプ風)
+  document.getElementById('build-stamp').textContent =
+    'ISSUED ' + new Date().toLocaleDateString('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'});
+
+  // PWA: サービスワーカー登録(オフラインでも枠を開けるように)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
